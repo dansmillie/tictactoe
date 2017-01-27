@@ -10,8 +10,103 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.dansmillie.tictactoe.MainActivity">
 
-    <TextView
+    <TableLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!" />
+        android:gravity="center"
+        android:layout_gravity="top|center"
+        android:clickable="true"
+        android:padding="10dp"
+        android:id="@+id/board"
+        android:nestedScrollingEnabled="false"
+        >
+
+        <TableRow
+            style="@style/TableRow"
+            android:id="@+id/row0"
+            >
+            <TextView
+                android:layout_column="0"
+                style="@style/LeftCell">
+
+            </TextView>
+            <TextView
+                android:layout_column="1"
+                style="@style/MiddleCell">
+
+            </TextView>
+            <TextView
+                android:layout_column="2"
+                style="@style/RightCell">
+
+            </TextView>
+
+        </TableRow>
+        <TableRow
+            style="@style/TableRow"
+            android:id="@+id/row1"
+            >
+            <TextView
+                android:layout_column="0"
+                style="@style/LeftCell">
+
+            </TextView>
+            <TextView
+                android:layout_column="1"
+                style="@style/MiddleCell">
+
+            </TextView>
+            <TextView
+                android:layout_column="2"
+                style="@style/RightCell">
+
+            </TextView>
+
+        </TableRow>
+        <TableRow
+            style="@style/TableRow"
+            android:id="@+id/row2"
+            >
+            <TextView
+                android:layout_column="0"
+                style="@style/LeftCell">
+
+            </TextView>
+            <TextView
+                android:layout_column="1"
+                style="@style/MiddleCell">
+
+            </TextView>
+            <TextView
+                android:layout_column="2"
+                style="@style/RightCell">
+
+            </TextView>
+
+        </TableRow>
+
+    </TableLayout>
+
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reset Match"
+        android:id="@+id/reset"
+        android:onClick="onStart"
+        android:layout_below="@id/board"/>
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Turn: "
+        android:id="@+id/status"
+        android:gravity="left"
+        android:padding="10dp"
+        android:textSize="24sp"
+        android:textColor="@color/black"
+        android:layout_below="@id/board"
+        android:layout_toRightOf="@id/reset"
+        />
+
 </RelativeLayout>
