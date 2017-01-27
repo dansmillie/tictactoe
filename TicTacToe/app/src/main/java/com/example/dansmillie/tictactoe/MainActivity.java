@@ -1,5 +1,6 @@
 package com.example.dansmillie.tictactoe;
 
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -22,11 +23,12 @@ public class MainActivity extends AppCompatActivity {
     private static final int SIZE = 3;
     private static final int X = -1, PLAYER = -1;
     private static final int O = 1;
-    private int[][] board;
+    private IndiGame[][] board;
+    private int[][] realBoard;
     private boolean isPlayerTurn;
     private TableLayout boardView;
     private Random rand = new Random();
-    private HashSet<IndexPair> availableCells;
+    private HashSet<IndexQuad> availableCells;
 
 
 
@@ -39,29 +41,33 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean onStart(View view) {
-        board = new int[SIZE][SIZE];
+        board = new IndiGame[SIZE][SIZE];
+        realBoard = new int[SIZE][SIZE];
         isPlayerTurn = true;
         boardView = (TableLayout)findViewById(R.id.board);
-        availableCells = new HashSet<IndexPair>();
+        availableCells = new HashSet<IndexQuad>();
 
         TextView status = (TextView)findViewById(R.id.status);
         status.setText(USER_TURN);
 
         for (int i = 0; i < SIZE; i++) {
-            TableRow row = (TableRow) boardView.getChildAt(i);
+            TableRow oRow = (TableRow) boardView.getChildAt(i);
             for (int j = 0; j < SIZE; j++) {
-                TextView cell = (TextView) row.getChildAt(j);
-                cell.setText(R.string.none);
-                cell.setOnTouchListener(new TouchListener(i, j, cell));
-                availableCells.add(new IndexPair(i, j));
+                TableLayout indGame = (TableLayout) oRow.getChildAt(j);
+                for (int k = 0; k < SIZE; k++) {
+                    TableRow iRow = (TableRow) indGame.getChildAt(k);
+                    for (int l = 0; l < SIZE; l++) {
+                        TextView cell = (TextView)iRow.getChildAt(l);
+                        cell.setText(R.string.none);
+                        cell.setOnTouchListener(new TouchListener(i, j, k, l, cell));
+                        availableCells.add(new IndexQuad(i, j, k, l));
+                    }
+                }
+
             }
         }
 
         return true;
-    }
-
-    public boolean isSet(int i, int j) {
-        return board[i][j] != 0;
     }
 
     public boolean didPlayerWin() {
@@ -72,6 +78,14 @@ public class MainActivity extends AppCompatActivity {
         return didWin(O);
     }
 
+    public boolean playerWonSquare(int i, int j) {
+        return board[i][j].getWinner() == X;
+    }
+
+    public boolean compWonSquare(int i, int j) {
+        return board[i][j].getWinner() == O;
+    }
+
     private boolean didWin(int mark) {
         int goal = mark * SIZE;
         //check rows and cols
@@ -79,8 +93,8 @@ public class MainActivity extends AppCompatActivity {
             int rowSum = 0;
             int colSum = 0;
             for (int j = 0; j < SIZE; j++) {
-                rowSum += board[i][j];
-                colSum += board[j][i];
+                rowSum += realBoard[i][j];
+                colSum += realBoard[j][i];
             }
             if (rowSum == goal || colSum == goal) {
                 return true;
@@ -91,8 +105,8 @@ public class MainActivity extends AppCompatActivity {
         int lrSum = 0;
         int rlSum = 0;
         for (int i = 0; i < SIZE; i++) {
-            lrSum += board[i][i];
-            rlSum += board[i][SIZE - (i + 1)];
+            lrSum += realBoard[i][i];
+            rlSum += realBoard[i][SIZE - (i + 1)];
         }
         if (lrSum == goal || rlSum == goal) {
             return true;
@@ -101,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
 
         return false;
     }
+
 
     public void computerTurn() {
 
@@ -113,15 +128,17 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //pick a cell
-        int row = 0, col = 0;
+        int oRow = 0, oCol = 0, iRow = 0, iCol = 0;
         int pick = rand.nextInt(availableCells.size());
-        Iterator<IndexPair> iter = availableCells.iterator();
+        Iterator<IndexQuad> iter = availableCells.iterator();
         int count = 0;
         while (iter.hasNext()) {
-            IndexPair curr = iter.next();
+            IndexQuad curr = iter.next();
             if (count == pick) {
-                row = curr.row;
-                col = curr.col;
+                oRow = curr.oRow;
+                oCol = curr.oCol;
+                iRow = curr.iRow;
+                iCol = curr.iCol;
                 iter.remove();
                 break;
             }
@@ -130,9 +147,11 @@ public class MainActivity extends AppCompatActivity {
 
 
         //update gameState
-        board[row][col] = O;
-        TableRow rowView = (TableRow) boardView.getChildAt(row);
-        TextView cell = (TextView) rowView.getChildAt(col);
+        board[oRow][oCol].set(iRow, iCol, O);
+        TableRow orowView = (TableRow) boardView.getChildAt(oRow);
+        TableLayout innerGame = (TableLayout) orowView.getChildAt(oCol);
+        TableRow iRowView = (TableRow) innerGame.getChildAt(iRow);
+        TextView cell = (TextView) iRowView.getChildAt(iCol);
         cell.setText(R.string.O);
         if (didCompWin()) {
             stat.setText("Computer Wins!");
@@ -149,13 +168,17 @@ public class MainActivity extends AppCompatActivity {
 
     private class TouchListener implements View.OnTouchListener {
 
-        private int row;
-        private int col;
+        private int oRow;
+        private int oCol;
+        private int iRow;
+        private int iCol;
         private View view;
 
-        public TouchListener(int r, int c, TextView v) {
-            row = r;
-            col = c;
+        public TouchListener(int or, int oc, int ir, int ic, TextView v) {
+            oRow = or;
+            oCol = oc;
+            iRow = ir;
+            iCol = ic;
             view = v;
 
         }
@@ -167,19 +190,22 @@ public class MainActivity extends AppCompatActivity {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 TextView cell = (TextView) v;
                 TextView stat = (TextView)findViewById(R.id.status);
-                if(!isSet(row,col)) {
-                    board[row][col] = X;
+                if(!board[oRow][oCol].isSet(iRow, iCol)) {
+                    board[oRow][oCol].set(iRow, iCol, X);
                     cell.setText(R.string.X);
-                    Iterator<IndexPair> iter = availableCells.iterator();
+                    Iterator<IndexQuad> iter = availableCells.iterator();
                     while (iter.hasNext()) {
-                        IndexPair curr = iter.next();
-                        if (curr.col == col && curr.row == row) {
+                        IndexQuad curr = iter.next();
+                        if (curr.oCol == oCol && curr.oRow == oRow && curr.iCol == iCol && curr.iRow == iRow) {
                             iter.remove();
                             break;
                         }
                     }
 
                     isPlayerTurn = false;
+                    if (playerWonSquare(oRow, oCol)) {
+                        realBoard[oRow][oCol] = X;
+                    }
                     if (didPlayerWin()) {
                         stat.setText("Player Wins!");
                     } else {
@@ -195,13 +221,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class IndexPair {
-        public int row;
-        public int col;
+    private class IndexQuad {
+        public int oRow;
+        public int oCol;
+        public int iRow;
+        public int iCol;
 
-        public IndexPair(int i, int j) {
-            row = i;
-            col = j;
+        public IndexQuad(int i, int j, int k, int l) {
+            oRow = i;
+            oCol = j;
+            iRow = k;
+            iCol = l;
         }
 
 

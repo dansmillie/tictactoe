@@ -46,4 +46,33 @@
         <item name = "android:layout_marginBottom">2dp</item>
     </style>
 
+    <style name="SmallCell">
+        <item name = "android:layout_width">wrap_content</item>
+        <item name = "android:layout_height">32dp</item>
+        <item name = "android:layout_gravity">center</item>
+        <item name = "android:gravity">center</item>
+        <item name = "android:textSize">12sp</item>
+        <item name = "android:background">@color/white</item>
+        <item name = "android:maxWidth">33dp</item>
+        <item name = "android:text">"@string/none"</item>
+        <item name = "android:clickable">true</item>
+    </style>
+    <style name="SmallLeftCell" parent="@style/SmallCell">
+        <item name = "android:layout_marginLeft">1dp</item>
+        <item name = "android:layout_marginTop">1dp</item>
+        <item name = "android:layout_marginRight">1dp</item>
+        <item name = "android:layout_marginBottom">1dp</item>
+    </style>
+    <style name="SmallMiddleCell" parent="@style/SmallCell">
+        <item name = "android:layout_marginLeft">1dp</item>
+        <item name = "android:layout_marginTop">1dp</item>
+        <item name = "android:layout_marginRight">1dp</item>
+        <item name = "android:layout_marginBottom">1dp</item>
+    </style>
+    <style name="SmallRightCell" parent="@style/SmallCell">
+        <item name = "android:layout_marginLeft">1dp</item>
+        <item name = "android:layout_marginTop">1dp</item>
+        <item name = "android:layout_marginRight">1dp</item>
+        <item name = "android:layout_marginBottom">1dp</item>
+    </style>
 </resources>
