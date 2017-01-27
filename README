@@ -1,0 +1,2 @@
+A simple game of Tic-Tac-Toe. After finishing the simple game the idea is to extend
+it to be a game of Extreme Tic-Tac-Toe where each square of the board is itself a game of Tic-Tac-Toe.
